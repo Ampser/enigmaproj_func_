@@ -55,8 +55,33 @@ let rec map_plug plugs c =
       else if c = right then left
       else map_plug rest c
 
-let cipher_char _config _c =
-  failwith "Unimplemented"
+let cipher_char config c =
+  let rec through_rotors_right_to_left rotors input_pos =
+    match rotors with
+    | [] -> input_pos
+    | oriented_rotor :: rest ->
+        let output_pos = through_rotors_right_to_left rest input_pos in
+        map_r_to_l oriented_rotor.rotor.wiring oriented_rotor.top_letter output_pos
+  in
+  let rec through_rotors_left_to_right rotors input_pos =
+    match rotors with
+    | [] -> input_pos
+    | oriented_rotor :: rest ->
+        let output_pos =
+          map_l_to_r oriented_rotor.rotor.wiring oriented_rotor.top_letter input_pos
+        in
+        through_rotors_left_to_right rest output_pos
+  in
+  let plugged_input = map_plug config.plugboard c in
+  let right_output =
+    through_rotors_right_to_left config.rotors (index plugged_input)
+  in
+  let reflected_output = map_refl config.refl right_output in
+  let left_output =
+    through_rotors_left_to_right config.rotors reflected_output
+  in
+  let unboarded_output = Char.chr (Char.code 'A' + left_output) in
+  map_plug config.plugboard unboarded_output
 
 let step _config =
   failwith "Unimplemented"
