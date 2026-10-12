@@ -24,8 +24,25 @@ let map_r_to_l wiring top_letter input_pos =
   let wired_pos = index wiring.[internal_pos] in
   modulo_26 (wired_pos - offset)
 
-let map_l_to_r _wiring _top_letter _input_pos =
-  failwith "Unimplemented"
+let modulo_26 value = ((value mod 26) + 26) mod 26
+
+let position_of_char wiring target =
+  let rec search position =
+    if position = String.length wiring then
+      failwith "Character not found in rotor wiring"
+    else if wiring.[position] = target then
+      position
+    else
+      search (position + 1)
+  in
+  search 0
+
+let map_l_to_r wiring top_letter input_pos =
+  let offset = index top_letter in
+  let internal_pos = modulo_26 (input_pos + offset) in
+  let target = Char.chr (Char.code 'A' + internal_pos) in
+  let wired_pos = position_of_char wiring target in
+  modulo_26 (wired_pos - offset)
 
 let map_refl _wiring _input_pos =
   failwith "Unimplemented"
