@@ -17,6 +17,10 @@ let map_refl_test name wiring input_pos expected =
   name >:: fun _ ->
     assert_equal expected (map_refl wiring input_pos)
 
+let map_plug_test name plugs input expected =
+  name >:: fun _ ->
+    assert_equal expected (map_plug plugs input)
+
 let identity_wiring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 let rotor_i_wiring = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
 let reflector_b_wiring = "YRUHQSLDPXNGOKMIEBFZCWVJAT"
@@ -46,6 +50,11 @@ let suite =
     map_refl_test "historical reflector B maps B to R" reflector_b_wiring 1 17;
     map_refl_test "historical reflector B maps Y to A" reflector_b_wiring 24 0;
     map_refl_test "historical reflector B maps Z to T" reflector_b_wiring 25 19;
+    map_plug_test "empty plugboard leaves character unchanged" [] 'M' 'M';
+    map_plug_test "plugboard maps first direction of pair" [('A', 'B')] 'A' 'B';
+    map_plug_test "plugboard maps reverse direction of pair" [('A', 'B')] 'B' 'A';
+    map_plug_test "plugboard supports multiple pairs" [('A', 'B'); ('C', 'D')] 'C' 'D';
+    map_plug_test "unplugged character remains unchanged" [('A', 'B'); ('C', 'D')] 'Z' 'Z';
   ]
 
 let () = run_test_tt_main suite
