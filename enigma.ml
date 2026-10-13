@@ -121,4 +121,4 @@ let cipher config s =
   in
   encrypt config 0 []
 
-let hours_worked = 0
+let hours_worked = 11
