@@ -60,6 +60,12 @@ let no_rotors_config = {
   plugboard = [];
 }
 
+let plugged_no_rotors_config = {
+  refl = reflector_b_wiring;
+  rotors = [];
+  plugboard = [('A', 'Z')];
+}
+
 let aaa_config = {
   refl = reflector_b_wiring;
   rotors = [
@@ -122,6 +128,7 @@ let suite =
     map_plug_test "unplugged character remains unchanged" [('A', 'B'); ('C', 'D')] 'Z' 'Z';
     cipher_char_test "identity configuration keeps A" identity_config 'A' 'A';
     cipher_char_test "configuration with no rotors uses reflector" no_rotors_config 'A' 'Y';
+    cipher_char_test "cipher_char applies plugboard before and after reflector" plugged_no_rotors_config 'A' 'T';
     cipher_char_test "historical I-II-III at AAA maps G to P" aaa_config 'G' 'P';
     cipher_char_test "historical I-II-III at AAA maps A to U" aaa_config 'A' 'U';
     cipher_char_test "historical I-II-III at AAA maps Z to H" aaa_config 'Z' 'H';
@@ -130,6 +137,8 @@ let suite =
     step_test "rightmost turnover steps its left neighbor KDQ to KER" (stepping_config 'K' 'D' 'Q') "KER";
     step_test "middle turnover causes double step KER to LFS" (stepping_config 'K' 'E' 'R') "LFS";
     step_test "simultaneous turnovers advance each rotor only once" (stepping_config 'K' 'E' 'Q') "LFR";
+    step_test "rightmost rotor wraps from Z to A"
+      { identity_config with rotors = [{ rotor = rotor_i; top_letter = 'Z' }] } "A";
     cipher_test "empty string encrypts to empty string" identity_config "" "";
     cipher_test "one character steps first" aaa_config "A" "B";
     cipher_test "multiple characters pass through identity configuration" identity_config "ABC" "ABC";
