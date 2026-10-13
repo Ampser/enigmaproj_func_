@@ -34,6 +34,10 @@ let step_test name config expected_positions =
   name >:: fun _ ->
     assert_equal expected_positions (rotor_positions (step config).rotors)
 
+let cipher_test name config input expected =
+  name >:: fun _ ->
+    assert_equal expected (cipher config input)
+
 let identity_wiring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 let rotor_i_wiring = "EKMFLGDQVZNTOWYHXUSPAIBRCJ"
 let rotor_ii_wiring = "AJDKSIRUXBLHWTMCQGZNPYFVOE"
@@ -64,6 +68,16 @@ let aaa_config = {
     { rotor = rotor_iii; top_letter = 'A' };
   ];
   plugboard = [];
+}
+
+let assignment_config = {
+  refl = reflector_b_wiring;
+  rotors = [
+    { rotor = rotor_i; top_letter = 'F' };
+    { rotor = rotor_ii; top_letter = 'U' };
+    { rotor = rotor_iii; top_letter = 'N' };
+  ];
+  plugboard = [('A', 'Z')];
 }
 
 let stepping_config left middle right = {
@@ -116,6 +130,12 @@ let suite =
     step_test "rightmost turnover steps its left neighbor KDQ to KER" (stepping_config 'K' 'D' 'Q') "KER";
     step_test "middle turnover causes double step KER to LFS" (stepping_config 'K' 'E' 'R') "LFS";
     step_test "simultaneous turnovers advance each rotor only once" (stepping_config 'K' 'E' 'Q') "LFR";
+    cipher_test "empty string encrypts to empty string" identity_config "" "";
+    cipher_test "one character steps first" aaa_config "A" "B";
+    cipher_test "multiple characters pass through identity configuration" identity_config "ABC" "ABC";
+    cipher_test "historical AAA encrypts AAAAA" aaa_config "AAAAA" "BDZGO";
+    cipher_test "historical AAA encrypts HELLO" aaa_config "HELLO" "ILBDA";
+    cipher_test "full assignment example encrypts YNGXQ to OCAML" assignment_config "YNGXQ" "OCAML";
   ]
 
 let () = run_test_tt_main suite

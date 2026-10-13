@@ -110,7 +110,15 @@ let step config =
   let stepped_rotors, _ = step_from_right config.rotors in
   { config with rotors = stepped_rotors }
 
-let cipher _config _s =
-  failwith "Unimplemented"
+let cipher config s =
+  let rec encrypt current_config position output_rev =
+    if position = String.length s then
+      String.of_seq (List.to_seq (List.rev output_rev))
+    else
+      let stepped_config = step current_config in
+      let output_char = cipher_char stepped_config s.[position] in
+      encrypt stepped_config (position + 1) (output_char :: output_rev)
+  in
+  encrypt config 0 []
 
 let hours_worked = 0
